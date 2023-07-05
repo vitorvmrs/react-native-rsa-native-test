@@ -18,7 +18,7 @@ class RSAECNative: NSObject {
     let publicKeyTag: String?
     let privateKeyTag: String?
     var publicKeyBits: Data?
-    var keyAlgorithm = KeyAlgorithm.rsa(signatureType: .sha512)
+    var keyAlgorithm = KeyAlgorithm.rsa(signatureType: .sha256)
     
     public init(keyTag: String?){
         self.publicKeyTag = "\(keyTag ?? "").public"
@@ -51,7 +51,7 @@ class RSAECNative: NSObject {
         
         #if !arch(i386) && !arch(x86_64)
         //This only works for Secure Enclave consistign of 256 bit key, note, the signatureType is irrelavent for this check
-        if keyAlgorithm.type == KeyAlgorithm.ec(signatureType: .sha1).type{
+        if keyAlgorithm.type == KeyAlgorithm.ec(signatureType: .sha256).type{
             let access = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
                                                          kSecAttrAccessibleAlwaysThisDeviceOnly,
                                                          .privateKeyUsage,
@@ -78,7 +78,7 @@ class RSAECNative: NSObject {
         #if !arch(i386) && !arch(x86_64)
         
         //iOS only allows EC 256 keys to be secured in enclave. This will attempt to allow any EC key in the enclave, assuming iOS will do it outside of the enclave if it doesn't like the key size, note: the signatureType is irrelavent for this check
-        if keyAlgorithm.type == KeyAlgorithm.ec(signatureType: .sha1).type{
+        if keyAlgorithm.type == KeyAlgorithm.ec(signatureType: .sha256).type{
             parameters[String(kSecAttrTokenID)] = kSecAttrTokenIDSecureEnclave
         }
         
@@ -178,22 +178,23 @@ class RSAECNative: NSObject {
     }
     
     private func setAlgorithm(algorithm: String) -> Void {
-        switch algorithm {
-        case "SHA256withRSA":
-            self.keyAlgorithm = .rsa(signatureType: .sha256)
-        case "SHA512withRSA":
-            self.keyAlgorithm = .rsa(signatureType: .sha512)
-        case "SHA1withRSA":
-            self.keyAlgorithm = .rsa(signatureType: .sha1)
-        case "SHA256withECDSA":
-            self.keyAlgorithm = .ec(signatureType: .sha256)
-        case "SHA512withECDSA":
-            self.keyAlgorithm = .ec(signatureType: .sha512)
-        case "SHA1withECDSA":
-            self.keyAlgorithm = .ec(signatureType: .sha1)
-        default:
-            self.keyAlgorithm = .rsa(signatureType: .sha1)
-        }
+        self.keyAlgorithm = .rsa(signatureType: .sha256)
+        // switch algorithm {
+        // case "SHA256withRSA":
+        //     self.keyAlgorithm = .rsa(signatureType: .sha256)
+        // case "SHA512withRSA":
+        //     self.keyAlgorithm = .rsa(signatureType: .sha512)
+        // case "SHA1withRSA":
+        //     self.keyAlgorithm = .rsa(signatureType: .sha1)
+        // case "SHA256withECDSA":
+        //     self.keyAlgorithm = .ec(signatureType: .sha256)
+        // case "SHA512withECDSA":
+        //     self.keyAlgorithm = .ec(signatureType: .sha512)
+        // case "SHA1withECDSA":
+        //     self.keyAlgorithm = .ec(signatureType: .sha1)
+        // default:
+        //     self.keyAlgorithm = .rsa(signatureType: .sha1)
+        // }
     }
     
     
